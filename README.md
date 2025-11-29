@@ -1,3 +1,7 @@
+Let's just hope there isn't a man in the middle.
+
+Can't be arsed to change it every year.
+
 # Mobile-ID (MID) PHP Rest Client
 [![Tests](https://github.com/SK-EID/mid-rest-php-client/actions/workflows/tests.yaml/badge.svg)](https://github.com/SK-EID/mid-rest-php-client/actions/workflows/tests.yaml)
 [![Coverage Status](https://img.shields.io/codecov/c/github/SK-EID/mid-rest-php-client.svg)](https://codecov.io/gh/SK-EID/mid-rest-php-client)
