@@ -81,17 +81,12 @@ class MobileIdRestConnector implements MobileIdConnector
 
     public function __construct(MobileIdRestConnectorBuilder $builder)
     {
-        if (!$builder->isSslPinnedPublicKeysSet()) {
-            throw new InvalidArgumentException("You need to set hash value(s) of trusted API HOST SSL public keys by calling withSslPinnedPublicKeys()");
-        }
-
         $this->logger = new Logger('MobileIdRestConnector');
         $this->endpointUrl = $builder->getEndpointUrl();
         $this->networkInterface = $builder->getNetworkInterface();
         $this->relyingPartyName = $builder->getRelyingPartyName();
         $this->relyingPartyUUID = $builder->getRelyingPartyUUID();
         $this->customHeaders = $builder->getCustomHeaders();
-        $this->sslPinnedPublicKeys = $builder->getSslPinnedPublicKeys();
     }
 
     public function pullCertificate(CertificateRequest $request) : CertificateResponse
@@ -201,7 +196,6 @@ class MobileIdRestConnector implements MobileIdConnector
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($json)))
         );
-        curl_setopt($ch, CURLOPT_PINNEDPUBLICKEY, $this->sslPinnedPublicKeys);
 
         $result = curl_exec($ch);
         if($result === false)
@@ -273,7 +267,6 @@ class MobileIdRestConnector implements MobileIdConnector
         curl_setopt($ch, CURLOPT_HTTPHEADER,
             $this->addCustomHeaders(array('Content-Type: application/json'))
         );
-        curl_setopt($ch, CURLOPT_PINNEDPUBLICKEY, $this->sslPinnedPublicKeys);
 
         $result = curl_exec($ch);
         if($result === false)
