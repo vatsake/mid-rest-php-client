@@ -28,8 +28,10 @@ namespace Sk\Mid\Tests\Mock;
 use Sk\Mid\Rest\Dao\Request\AuthenticationRequest;
 use Sk\Mid\Rest\Dao\Request\CertificateRequest;
 use Sk\Mid\Rest\Dao\Request\SessionStatusRequest;
+use Sk\Mid\Rest\Dao\Request\SignatureRequest;
 use Sk\Mid\Rest\Dao\Response\AuthenticationResponse;
 use Sk\Mid\Rest\Dao\Response\CertificateResponse;
+use Sk\Mid\Rest\Dao\Response\SessionResponse;
 use Sk\Mid\Rest\Dao\SessionStatus;
 use Sk\Mid\Rest\MobileIdConnector;
 
@@ -42,7 +44,7 @@ class MobileIdConnectorSpy implements MobileIdConnector
     /** @var CertificateResponse $certificateChoiceResponseToRespond */
     private $certificateChoiceResponseToRespond;
 
-    /** @var AuthenticationResponse $authenticationResponseToRespond */
+    /** @var SessionResponse $authenticationResponseToRespond */
     private $authenticationResponseToRespond;
 
     private $signatureResponseToRespond;
@@ -78,7 +80,7 @@ class MobileIdConnectorSpy implements MobileIdConnector
         $this->certificateChoiceResponseToRespond = $certificateChoiceResponseToRespond;
     }
 
-    public function setAuthenticationResponseToRespond(AuthenticationResponse $authenticationResponseToRespond): void
+    public function setAuthenticationResponseToRespond(SessionResponse $authenticationResponseToRespond): void
     {
         $this->authenticationResponseToRespond = $authenticationResponseToRespond;
     }
@@ -120,10 +122,16 @@ class MobileIdConnectorSpy implements MobileIdConnector
         return $this->signatureResponseToRespond;
     }
 
-    public function initAuthentication(AuthenticationRequest $request) : AuthenticationResponse
+    public function initAuthentication(AuthenticationRequest $request) : SessionResponse
     {
         $this->authenticationRequestUsed = $request;
         return $this->authenticationResponseToRespond;
+    }
+
+    public function initSignature(SignatureRequest $request) : SessionResponse
+    {
+        $this->signatureRequestUsed = $request;
+        return $this->signatureResponseToRespond;
     }
 
     public function getSessionStatus(SessionStatusRequest $request) : SessionStatus

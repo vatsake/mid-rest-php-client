@@ -1,9 +1,8 @@
 {
-  "name": "sk-id-solutions/mobile-id-php-client",
+  "name": "vatsake/mobile-id-php-client",
   "type": "library",
   "description": "Mobile-ID Relying Party PHP Api client",
   "license": "MIT",
-
   "require": {
     "php": ">=7.4||~8",
     "ext-openssl": "*",

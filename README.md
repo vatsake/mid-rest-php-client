@@ -1,6 +1,116 @@
-Let's just hope there isn't a man in the middle.
+# SMART-ID-PHP-CLIENT
 
-Can't be arsed to change it every year.
+# Signing functionality
+
+```PHP
+// step #1 - validate user input
+
+try {
+    $phoneNumber = MidInputUtil::getValidatedPhoneNumber($this->userData['phoneNumber']);
+    $nationalIdentityNumber = MidInputUtil::getValidatedNationalIdentityNumber($this->userData['nationalIdentityNumber']);
+}
+catch (MidInvalidPhoneNumberException $e) {
+    echo 'The phone number you entered is invalid';
+}
+catch (MidInvalidNationalIdentityNumberException $e) {
+    echo 'The national identity number you entered is invalid';
+}
+
+// step #2 - create client with long-polling.
+// withSslPinnedPublicKeys() is optional
+
+$client = MobileIdClient::newBuilder()
+        ->withRelyingPartyUUID($this->config['relyingPartyUUID'])
+        ->withRelyingPartyName($this->config['relyingPartyName'])
+        ->withHostUrl($this->config['hostUrl'])
+        ->withLongPollingTimeoutSeconds(60)
+        ->withSslPinnedPublicKeys("sha256//k/w7/9MIvdN6O/rE1ON+HjbGx9PRh/zSnNJ61pldpCs=;sha256//some-future-ssl-host-key") // You can remove it (but that isn't recommended)
+        ->build();
+
+
+// step #3 - calculate verification code and display to user
+
+$hash = MobileIdSignatureHashToSign::newBuilder()->withHashInBase64(/* DATA TO BE SIGNED */)->withHashType('sha256')->build();
+$verificationCode = $hash->calculateVerificationCode();
+
+// step #4 - display $verificationCode (4 digit code) to user
+
+echo 'Verification code: '.$verificationCode."\n";
+
+// step #5 - create request to be sent to user's phone
+
+$request = SignatureRequest::newBuilder()
+        ->withPhoneNumber($phoneNumber)
+        ->withNationalIdentityNumber($nationalIdentityNumber)
+        ->withHashToSign($hash)
+        ->withLanguage(ENG::asType())
+        ->withDisplayText("Sign document?")
+        ->withDisplayTextFormat(DisplayTextFormat::GSM7)
+        ->build();
+
+// step #6 - send request to user's phone and catch possible errors
+
+try {
+    $response = $client->getMobileIdConnector()->initSignature($request);
+} catch (MidNotMidClientException $e) {
+    echo "User is not a MID client or user's certificates are revoked.";
+} catch (MidUnauthorizedException $e) {
+    echo 'Integration error with Mobile-ID. Invalid MID credentials';
+} catch (MissingOrInvalidParameterException $e) {
+    echo 'Problem with MID integration';
+} catch (MidInternalErrorException $e) {
+    echo 'MID internal error';
+}
+
+// step #7 - keep polling for session status until we have a final status from phone
+
+$finalSessionStatus = $client
+        ->getSessionStatusPoller()
+        ->fetchFinalSignatureSessionStatus($response->getSessionID());
+
+// step #8 - get signature result
+
+try {
+    $result = $client->createMobileIdSignature($finalSessionStatus, $hash);
+}
+catch (MidUserCancellationException $e) {
+    echo "User cancelled operation from his/her phone.";
+}
+catch (MidNotMidClientException $e) {
+    echo "User is not a MID client or user's certificates are revoked.";
+}
+catch (MidSessionTimeoutException $e) {
+    echo "User did not type in PIN code or communication error.";
+}
+catch (MidPhoneNotAvailableException $e) {
+    echo "Unable to reach phone/SIM card. User needs to check if phone has coverage.";
+}
+catch (MidDeliveryException $e) {
+    echo "Error communicating with the phone/SIM card.";
+}
+catch (MidInvalidUserConfigurationException $e) {
+    echo "Mobile-ID configuration on user's SIM card differs from what is configured on service provider's side. User needs to contact his/her mobile operator.";
+}
+catch (MidSessionNotFoundException | MissingOrInvalidParameterException | MidUnauthorizedException | MidSslException $e) {
+    throw new RuntimeException("Integrator-side error with MID integration or configuration. Error code:". $e->getCode());
+}
+catch (MidServiceUnavailableException $e) {
+    echo "MID service is currently unavailable. User shold try again later.";
+}
+catch (MidInternalErrorException $internalError) {
+    echo "Something went wrong with Mobile-ID service";
+}
+```
+
+## Breaking changes
+
+* Renamed AuthenticationResponse -> SessionResponse
+
+## Minor changes
+
+* Setting client's public SSL keys is not optional
+
+# Original documentation
 
 # Mobile-ID (MID) PHP Rest Client
 [![Tests](https://github.com/SK-EID/mid-rest-php-client/actions/workflows/tests.yaml/badge.svg)](https://github.com/SK-EID/mid-rest-php-client/actions/workflows/tests.yaml)

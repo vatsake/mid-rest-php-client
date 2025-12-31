@@ -69,7 +69,9 @@ class SessionStatusPoller
 
     public function fetchFinalSignatureSessionStatus(string $sessionId, int $longPollSeconds = 20) : SessionStatus
     {
-        return $this->fetchFinalSessionStatus($sessionId, $longPollSeconds);
+        $sessionStatus = $this->pollForFinalSessionStatus($sessionId, $longPollSeconds, 'signature');
+        $this->validateResult($sessionStatus);
+        return $sessionStatus;
     }
 
     public function fetchFinalAuthenticationSession(string $sessionId, int $longPollSeconds = 20) : SessionStatus
@@ -77,19 +79,19 @@ class SessionStatusPoller
         return $this->fetchFinalSessionStatus($sessionId, $longPollSeconds);
     }
 
-    public function fetchFinalSessionStatus(string $sessionId, int $longPollSeconds = null) : SessionStatus
+    public function fetchFinalSessionStatus(string $sessionId, int $longPollSeconds = 20) : SessionStatus
     {
         $sessionStatus = $this->pollForFinalSessionStatus($sessionId, $longPollSeconds);
         $this->validateResult($sessionStatus);
         return $sessionStatus;
     }
 
-    private function pollForFinalSessionStatus(string $sessionId, ?int $longPollSeconds = 20) : SessionStatus
+    private function pollForFinalSessionStatus(string $sessionId, ?int $longPollSeconds = 20, ?string $type = 'authentication') : SessionStatus
     {
         $sessionStatus = null;
 
         while ($sessionStatus == null || strcasecmp($sessionStatus->getState(), 'RUNNING') == 0) {
-            $sessionStatus = $this->pollSessionStatus($sessionId, $longPollSeconds);
+            $sessionStatus = $this->pollSessionStatus($sessionId, $longPollSeconds, $type);
             if ($sessionStatus->isComplete()) {
                 return $sessionStatus;
             }
@@ -102,11 +104,15 @@ class SessionStatusPoller
         return $sessionStatus;
     }
 
-    private function pollSessionStatus(string $sessionId, ?int $longPollSeconds = null) : SessionStatus
+    private function pollSessionStatus(string $sessionId, int $longPollSeconds, string $type) : SessionStatus
     {
         $this->logger->debug('Polling session status');
         $request = $this->createSessionStatusRequest($sessionId, $longPollSeconds);
-        return $this->connector->pullAuthenticationSessionStatus($request);
+
+        if ($type === 'authentication') {
+            return $this->connector->pullAuthenticationSessionStatus($request);
+        }
+        return $this->connector->pullSignatureSessionStatus($request);
     }
 
     private function createSessionStatusRequest(string $sessionId, ?int $longPollSeconds) : SessionStatusRequest

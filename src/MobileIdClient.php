@@ -145,6 +145,20 @@ class MobileIdClient
 
     }
 
+    public function createMobileIdSignature(SessionStatus $sessionStatus, MobileIdSignatureHashToSign $hash): MobileIdSignatureResult
+    {
+        $this->validateResponse($sessionStatus);
+        $sessionSignature = $sessionStatus->getSignature();
+
+        return MobileIdSignatureResult::newBuilder()
+            ->withResult($sessionStatus->getResult())
+            ->withSignatureValueInBase64($sessionSignature->getValue())
+            ->withAlgorithmName($sessionSignature->getAlgorithmName())
+            ->withSignedHashInBase64($hash->getHashInBase64())
+            ->withHashType($hash->getHashType())
+            ->build();
+    }
+
     private function validateCertificateResult(?string $result): void
     {
         if (strcasecmp('NOT_FOUND', $result) == 0) {

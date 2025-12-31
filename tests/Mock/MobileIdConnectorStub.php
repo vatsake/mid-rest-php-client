@@ -30,8 +30,9 @@ use Sk\Mid\Rest\Dao\SessionStatus;
 use Sk\Mid\Rest\MobileIdConnector;
 use Sk\Mid\Rest\Dao\Request\CertificateRequest;
 use Sk\Mid\Rest\Dao\Request\AuthenticationRequest;
+use Sk\Mid\Rest\Dao\Request\SignatureRequest;
 use Sk\Mid\Rest\Dao\Response\CertificateResponse;
-use Sk\Mid\Rest\Dao\Response\AuthenticationResponse;
+use Sk\Mid\Rest\Dao\Response\SessionResponse;
 
 class MobileIdConnectorStub implements MobileIdConnector
 {
@@ -71,7 +72,7 @@ class MobileIdConnectorStub implements MobileIdConnector
 
     public function pullCertificate(CertificateRequest $request) : CertificateResponse
     {
-        return new CertificateResponse();
+        return new CertificateResponse([]);
     }
 
     public function sign($request)
@@ -79,9 +80,14 @@ class MobileIdConnectorStub implements MobileIdConnector
         return null;
     }
 
-    public function initAuthentication(AuthenticationRequest $request) : AuthenticationResponse
+    public function initAuthentication(AuthenticationRequest $request) : SessionResponse
     {
-        return new AuthenticationResponse();
+        return new SessionResponse([]);
+    }
+
+    public function initSignature(SignatureRequest $request) : SessionResponse
+    {
+        return new SessionResponse([]);
     }
 
     public function getSessionStatus(SessionStatusRequest $request) : SessionStatus

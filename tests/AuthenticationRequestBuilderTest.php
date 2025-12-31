@@ -47,7 +47,7 @@ use Sk\Mid\Rest\Dao\Request\AuthenticationRequest;
 
 
 use Sk\Mid\Tests\Mock\MobileIdConnectorSpy;
-use Sk\Mid\Rest\Dao\Response\AuthenticationResponse;
+use Sk\Mid\Rest\Dao\Response\SessionResponse;
 use Sk\Mid\Tests\Mock\TestData;
 use Sk\Mid\MobileIdSignature;
 use Sk\Mid\Rest\Dao\SessionStatus;
@@ -64,7 +64,7 @@ class AuthenticationRequestBuilderTest extends TestCase
     protected function setUp() : void
     {
         $this->connector = new MobileIdConnectorSpy();
-        $this->connector->setAuthenticationResponseToRespond(new AuthenticationResponse( array('sessionId' => TestData::SESSION_ID)));
+        $this->connector->setAuthenticationResponseToRespond(new SessionResponse( array('sessionId' => TestData::SESSION_ID)));
         $this->connector->setSessionStatusToRespond(self::createDummyAuthenticationSessionStatus());
     }
 

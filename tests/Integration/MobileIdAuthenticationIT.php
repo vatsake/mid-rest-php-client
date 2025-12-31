@@ -41,6 +41,7 @@ use Sk\Mid\Rest\MobileIdRestConnector;
 use Sk\Mid\Tests\Mock\TestData;
 use Sk\Mid\Rest\Dao\Request\AuthenticationRequest;
 use Sk\Mid\MobileIdAuthenticationHashToSign;
+use Sk\Mid\Rest\Dao\Response\SessionResponse;
 
 class MobileIdAuthenticationIT extends TestCase
 {
@@ -369,7 +370,7 @@ class MobileIdAuthenticationIT extends TestCase
         self::generateSessionId($client);
     }
 
-    private static function generateSessionId(MobileIdClient $client) : AuthenticationResponse
+    private static function generateSessionId(MobileIdClient $client) : SessionResponse
     {
         $authenticationRequest = AuthenticationRequest::newBuilder()
             ->withNationalIdentityNumber(TestData::VALID_NAT_IDENTITY)

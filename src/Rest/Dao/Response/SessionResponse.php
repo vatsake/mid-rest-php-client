@@ -24,8 +24,10 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\Mid\Rest\Dao\Response;
-class AuthenticationResponse
+
+class SessionResponse
 {
 
     /** @var string $sessionId */
@@ -37,19 +39,18 @@ class AuthenticationResponse
     }
 
 
-    public function getSessionId() : string
+    public function getSessionId(): string
     {
         return $this->sessionId;
     }
 
-    public function setSessionId(string $sessionId) : void
+    public function setSessionId(string $sessionId): void
     {
         $this->sessionId = $sessionId;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return  "AuthenticationResponse{sessionID='" . $this->sessionId . '}';
     }
-
 }
