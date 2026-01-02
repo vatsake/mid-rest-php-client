@@ -1,4 +1,4 @@
-# SMART-ID-PHP-CLIENT
+# MOBILE-ID-PHP-CLIENT
 
 # Signing functionality
 
