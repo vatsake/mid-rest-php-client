@@ -108,7 +108,7 @@ catch (MidInternalErrorException $internalError) {
 
 ## Minor changes
 
-* Setting client's public SSL keys is not optional
+* Setting client's public SSL keys is now optional
 
 # Original documentation
 
